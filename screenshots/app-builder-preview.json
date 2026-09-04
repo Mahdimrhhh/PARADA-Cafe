@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "PARADA · توقفگاه",
+      "hasCanvas": false,
+      "bodyTextLen": 4245,
+      "bodyTextHash": "40b2832a8b03e6248689f2dd4292060d5d02911c98405a633c02becd06ae66be",
+      "bodyTextPrefix": "SPECIALTY COFFEE PARADA توقفگاه A PLACE TO PAUSE اسپرسو بار بر پ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "PARADA · توقفگاه",
+      "hasCanvas": false,
+      "bodyTextLen": 4245,
+      "bodyTextHash": "40b2832a8b03e6248689f2dd4292060d5d02911c98405a633c02becd06ae66be",
+      "bodyTextPrefix": "SPECIALTY COFFEE PARADA توقفگاه A PLACE TO PAUSE اسپرسو بار بر پ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

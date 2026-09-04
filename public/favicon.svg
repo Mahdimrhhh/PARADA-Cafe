@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="PARADA">
+  <rect width="32" height="32" rx="7" fill="#EBE6DC"/>
+  <path fill="#2A2724" fill-rule="evenodd" d="M8 6.2h12.2c4.15 0 6.9 2.4 6.9 6.15 0 3.75-2.8 6.25-7.05 6.25H12.2V25.8H8V6.2zm4.2 3.2v5.85h7.4c2.1 0 3.35-1.2 3.35-2.9s-1.25-2.95-3.35-2.95H12.2z"/>
+  <rect x="8" y="27.15" width="16" height="1.6" rx="0.8" fill="#C4923A"/>
+</svg>

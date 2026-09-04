@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="120" viewBox="0 0 800 120" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="ledgeLight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3ede0"/>
+      <stop offset="0.45" stop-color="#dfd5c2"/>
+      <stop offset="1" stop-color="#a89d89"/>
+    </linearGradient>
+    <linearGradient id="ledgeShadow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7d7567"/>
+      <stop offset="0.5" stop-color="#5a534a"/>
+      <stop offset="1" stop-color="#3d3833"/>
+    </linearGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f0d59a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#f0d59a" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- lit face -->
+  <path d="M0 0 L800 0 L800 38 Q740 44 680 41 Q620 38 540 44 Q460 50 400 44 Q340 38 260 41 Q180 44 100 41 Q40 39 0 41 Z"
+    fill="url(#ledgeLight)"/>
+  <!-- warm glow on ledge -->
+  <path d="M0 0 L800 0 L800 36 Q400 56 0 36 Z" fill="url(#warm)"/>
+  <!-- crack line -->
+  <path d="M40 30 Q120 26 200 34 Q300 44 380 36 Q480 26 580 34 Q680 42 760 34"
+    stroke="#7a6f5d" stroke-width="0.8" fill="none" opacity="0.55"/>
+  <path d="M120 50 Q220 46 320 52 Q420 58 520 50 Q620 44 720 50"
+    stroke="#5e5448" stroke-width="0.6" fill="none" opacity="0.4"/>
+  <!-- shadow under ledge -->
+  <path d="M0 42 Q120 48 240 44 Q360 40 480 46 Q600 52 720 46 Q780 42 800 44 L800 70 Q400 82 0 68 Z"
+    fill="url(#ledgeShadow)" opacity="0.85"/>
+  <!-- pebbles -->
+  <ellipse cx="80" cy="78" rx="14" ry="6" fill="#8a847c" opacity="0.85"/>
+  <ellipse cx="120" cy="84" rx="9" ry="4" fill="#6f6a64" opacity="0.7"/>
+  <ellipse cx="180" cy="80" rx="12" ry="5" fill="#9c9283" opacity="0.85"/>
+  <ellipse cx="240" cy="86" rx="8" ry="3.5" fill="#5c5752" opacity="0.65"/>
+  <ellipse cx="320" cy="82" rx="14" ry="5" fill="#a39a8a" opacity="0.9"/>
+  <ellipse cx="400" cy="86" rx="9" ry="4" fill="#6f6a64" opacity="0.7"/>
+  <ellipse cx="460" cy="80" rx="11" ry="5" fill="#8a847c" opacity="0.85"/>
+  <ellipse cx="540" cy="84" rx="9" ry="4" fill="#5c5752" opacity="0.65"/>
+  <ellipse cx="620" cy="82" rx="13" ry="5" fill="#9c9283" opacity="0.85"/>
+  <ellipse cx="680" cy="86" rx="8" ry="3.5" fill="#6f6a64" opacity="0.65"/>
+  <ellipse cx="740" cy="80" rx="11" ry="5" fill="#a39a8a" opacity="0.85"/>
+</svg>

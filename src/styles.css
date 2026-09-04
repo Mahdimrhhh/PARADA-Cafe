@@ -1,0 +1,301 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --font-display: "Cinzel", "Times New Roman", ui-serif, Georgia, serif;
+  --font-serif: "Cormorant Garamond", "Cinzel", ui-serif, Georgia, serif;
+  --font-sans: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+
+  /* Stone palette — warm plaster + cave grey + amber light */
+  --color-plaster: #ebe6dc;
+  --color-plaster-deep: #d6cebf;
+  --color-cream: #f7f3ea;
+  --color-stone: #9a938a;
+  --color-stone-deep: #5c5752;
+  --color-rock: #403c38;
+  --color-ink: #1f1d1b;
+  --color-ink-soft: #383430;
+  --color-mist: #6f6a64;
+  --color-amber: #c4923a;
+  --color-amber-deep: #a37822;
+  --color-amber-glow: #f0d59a;
+  --color-amber-soft: #f6e6bd;
+  --color-led: #f5d98c;
+  --color-danger: #8f3d32;
+  --color-moss: #6b6a52;
+
+  --color-background: var(--color-plaster);
+  --color-foreground: var(--color-ink);
+  --color-border: color-mix(in oklab, var(--color-ink) 16%, transparent);
+  --color-ring: var(--color-amber);
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 28px;
+  --radius-alcove: 1.75rem;
+
+  --shadow-border:
+    0 0 0 1px color-mix(in oklab, var(--color-ink) 10%, transparent),
+    0 1px 2px -1px color-mix(in oklab, var(--color-ink) 12%, transparent),
+    0 10px 26px -18px color-mix(in oklab, var(--color-ink) 28%, transparent);
+  --shadow-led:
+    inset 0 0 0 1px color-mix(in oklab, var(--color-amber-glow) 55%, transparent),
+    inset 0 0 32px 2px color-mix(in oklab, var(--color-led) 35%, transparent),
+    0 0 40px -10px color-mix(in oklab, var(--color-amber) 45%, transparent);
+  --shadow-carve: inset 0 1px 2px color-mix(in oklab, var(--color-ink) 22%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--color-cream) 65%, transparent);
+  --shadow-lamp: 0 0 60px 10px color-mix(in oklab, var(--color-amber) 35%, transparent);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--color-plaster);
+    color: var(--color-ink);
+  }
+
+  body {
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    background: var(--color-plaster);
+    color: var(--color-ink);
+    font-feature-settings: "ss01", "ss02";
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  img {
+    outline: 1px solid color-mix(in oklab, var(--color-ink) 10%, transparent);
+    outline-offset: -1px;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-amber) 38%, transparent);
+    color: var(--color-ink);
+  }
+}
+
+@layer components {
+  .plaster-page {
+    min-height: 100dvh;
+    background-color: var(--color-plaster);
+    background-image:
+      radial-gradient(
+        ellipse 70% 45% at 50% 0%,
+        color-mix(in oklab, var(--color-led) 30%, transparent),
+        transparent 62%
+      ),
+      radial-gradient(
+        ellipse 60% 40% at 50% 100%,
+        color-mix(in oklab, var(--color-amber-deep) 14%, transparent),
+        transparent 65%
+      ),
+      url("/textures/stone.svg"),
+      url("/textures/noise.svg");
+    background-repeat: no-repeat, no-repeat, repeat, repeat;
+    background-size: auto, auto, 320px 320px, 220px 220px;
+  }
+
+  .stone-ledge {
+    background-image: url("/textures/ledge.svg");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  }
+
+  .lamp-glow {
+    background-image: url("/textures/lamp.svg");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  }
+
+  .led-line {
+    height: 2px;
+    width: min(16rem, 60vw);
+    margin-inline: auto;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-led) 14%,
+      var(--color-amber-glow) 50%,
+      var(--color-led) 86%,
+      transparent
+    );
+    box-shadow:
+      0 0 22px 3px color-mix(in oklab, var(--color-amber) 55%, transparent),
+      0 0 6px 1px color-mix(in oklab, var(--color-amber-glow) 70%, transparent);
+  }
+
+  .arch-window {
+    position: relative;
+    overflow: hidden;
+    border-radius: 50% 50% 1.15rem 1.15rem / 42% 42% 1.15rem 1.15rem;
+    box-shadow:
+      var(--shadow-led),
+      inset 0 -2px 0 color-mix(in oklab, var(--color-ink) 12%, transparent);
+    background: var(--color-plaster-deep);
+  }
+
+  .arch-window::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-ink) 10%, transparent);
+    pointer-events: none;
+  }
+
+  .arch-window img {
+    outline: none;
+  }
+
+  .alcove {
+    background: var(--color-plaster-deep);
+    border-radius: var(--radius-alcove);
+    box-shadow:
+      var(--shadow-led),
+      var(--shadow-carve),
+      var(--shadow-border);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .alcove::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(
+        ellipse at 50% 0%,
+        color-mix(in oklab, var(--color-led) 18%, transparent),
+        transparent 55%
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .alcove > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .alcove-empty {
+    background:
+      radial-gradient(
+        ellipse at 50% 28%,
+        color-mix(in oklab, var(--color-led) 22%, transparent),
+        transparent 62%
+      ),
+      radial-gradient(
+        ellipse at 50% 80%,
+        color-mix(in oklab, var(--color-ink) 14%, transparent),
+        transparent 60%
+      ),
+      var(--color-plaster-deep);
+    box-shadow: var(--shadow-carve), var(--shadow-border);
+  }
+
+  .menu-leader {
+    flex: 1 1 auto;
+    min-width: 1.5rem;
+    height: 0;
+    margin-inline: 0.75rem;
+    border-bottom: 1px dotted color-mix(in oklab, var(--color-ink) 26%, transparent);
+    transform: translateY(-0.42em);
+  }
+
+  .stone-chip {
+    box-shadow: var(--shadow-border);
+    background: color-mix(in oklab, var(--color-cream) 70%, var(--color-plaster));
+  }
+
+  .sticky-lintel {
+    background: color-mix(in oklab, var(--color-plaster) 88%, transparent);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid color-mix(in oklab, var(--color-ink) 10%, transparent);
+  }
+
+  /* Stone surface for cards — soft engraved look */
+  .stone-card {
+    background:
+      radial-gradient(
+        ellipse at 50% 0%,
+        color-mix(in oklab, var(--color-amber-glow) 18%, transparent),
+        transparent 60%
+      ),
+      var(--color-cream);
+    box-shadow:
+      var(--shadow-border),
+      inset 0 1px 0 color-mix(in oklab, var(--color-cream) 70%, white);
+  }
+
+  /* Hammered copper/amber accent line */
+  .amber-rule {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--color-amber) 80%, transparent) 50%,
+      transparent
+    );
+  }
+
+  /* Engraved label text */
+  .engrave {
+    font-family: var(--font-display);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--color-mist);
+  }
+
+  /* Lamp overhead — reusable halo */
+  .lamp-halo {
+    position: absolute;
+    inset-inline: 0;
+    top: -40px;
+    height: 120px;
+    background: radial-gradient(
+      ellipse at 50% 0%,
+      color-mix(in oklab, var(--color-amber-glow) 65%, transparent),
+      color-mix(in oklab, var(--color-amber) 25%, transparent) 40%,
+      transparent 70%
+    );
+    pointer-events: none;
+    filter: blur(2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .plaster-page *,
+  .plaster-page *::before,
+  .plaster-page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

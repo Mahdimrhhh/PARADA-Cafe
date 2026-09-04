@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+  <defs>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7"/>
+      <feColorMatrix values="0 0 0 0 0.16
+                             0 0 0 0 0.15
+                             0 0 0 0 0.13
+                             0 0 0 0.18 0"/>
+      <feComposite in2="SourceGraphic" operator="in"/>
+    </filter>
+    <filter id="vein">
+      <feTurbulence type="turbulence" baseFrequency="0.012 0.04" numOctaves="2" seed="3"/>
+      <feColorMatrix values="0 0 0 0 0.34
+                             0 0 0 0 0.32
+                             0 0 0 0 0.28
+                             0 0 0 0.10 0"/>
+    </filter>
+    <filter id="speckle">
+      <feTurbulence type="fractalNoise" baseFrequency="3.2" numOctaves="1" seed="11"/>
+      <feColorMatrix values="0 0 0 0 0.78
+                             0 0 0 0 0.74
+                             0 0 0 0 0.67
+                             0 0 0 0.22 0"/>
+    </filter>
+  </defs>
+  <rect width="320" height="320" fill="transparent"/>
+  <rect width="320" height="320" filter="url(#grain)"/>
+  <rect width="320" height="320" filter="url(#vein)" opacity="0.6"/>
+  <rect width="320" height="320" filter="url(#speckle)"/>
+</svg>
