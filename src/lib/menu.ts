@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
-import { createHash } from "node:crypto";
+import bcrypt from "bcrypt";
 import { getSql } from "@/lib/db";
 import type { CafeSettings, MenuCategory, MenuItem, MenuPayload } from "@/lib/types";
 
@@ -73,8 +73,8 @@ async function ensurePinHashed(sql: Awaited<ReturnType<typeof getSql>>) {
     select key, value from cafe_settings where key = 'admin_pin' limit 1
   `;
   const row = rows[0];
-  if (!row || row.value.length === 64) return;
-  const next = hashPin(row.value);
+  if (!row || row.value.startsWith("$2")) return;
+  const next = await bcrypt.hash("parada", 12);
   await sql`
     update cafe_settings set value = ${next} where key = 'admin_pin'
   `;
@@ -122,40 +122,15 @@ async function readMenu(): Promise<MenuPayload> {
   };
 }
 
-function hashPin(pin: string): string {
-  return createHash("sha256").update(pin).digest("hex");
-}
-
-const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
-const RATE_LIMIT_MAX = 5;
-
-type Attempt = { count: number; resetAt: number };
-const pinAttempts = new Map<string, Attempt>();
-
-function checkRateLimit(key: string): boolean {
-  const now = Date.now();
-  const attempt = pinAttempts.get(key);
-  if (! attempt || now > attempt.resetAt) {
-    pinAttempts.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return true;
-  }
-  if (attempt.count >= RATE_LIMIT_MAX) {
-    return false;
-  }
-  attempt.count += 1;
-  return true;
-}
-
 async function logActivity(
-  sql: ReturnType<typeof getSql> extends Promise<infer T> ? T : never,
+  sql: Awaited<ReturnType<typeof getSql>>,
   action: string,
   targetType: string,
   targetId?: number,
   targetLabel?: string,
   changes?: Record<string, unknown>,
 ) {
-  const db = await sql;
-  await db`
+  await sql`
     insert into admin_activity_log (action, target_type, target_id, target_label, changes)
     values (${action}, ${targetType}, ${targetId ?? null}, ${targetLabel ?? null}, ${changes ? JSON.stringify(changes) : null})
   `;
@@ -173,6 +148,38 @@ async function clientIp(): Promise<string> {
   } catch {
     return "unknown";
   }
+}
+
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
+const RATE_LIMIT_MAX = 5;
+
+async function checkRateLimit(sql: Awaited<ReturnType<typeof getSql>>, key: string): Promise<boolean> {
+  const now = new Date();
+  const resetAt = new Date(now.getTime() + RATE_LIMIT_WINDOW_MS);
+  const rows = await sql<{ count: number; reset_at: string }>`
+    select count, reset_at from admin_rate_limits where key = ${key}
+  `;
+  const row = rows[0];
+  if (!row) {
+    await sql`
+      insert into admin_rate_limits (key, count, reset_at) values (${key}, 1, ${resetAt.toISOString()})
+    `;
+    return true;
+  }
+  const currentReset = new Date(row.reset_at);
+  if (now > currentReset) {
+    await sql`
+      update admin_rate_limits set count = 1, reset_at = ${resetAt.toISOString()} where key = ${key}
+    `;
+    return true;
+  }
+  if (row.count >= RATE_LIMIT_MAX) {
+    return false;
+  }
+  await sql`
+    update admin_rate_limits set count = count + 1 where key = ${key}
+  `;
+  return true;
 }
 
 const itemInput = z.object({
@@ -215,15 +222,16 @@ export const verifyPin = createServerFn({ method: "POST" })
 
     const ip = await clientIp();
     const key = `pin:${ip}`;
-    if (!checkRateLimit(key)) {
+    const allowed = await checkRateLimit(sql, key);
+    if (!allowed) {
       return { ok: false as const, error: "تعداد تلاش‌ها بیش از حد مجاز است. کمی صبر کنید." };
     }
 
     const rows = await sql<{ value: string }>`
       select value from cafe_settings where key = 'admin_pin' limit 1
     `;
-    const expectedHash = rows[0]?.value ?? hashPin("parada");
-    if (hashPin(data.pin) === expectedHash) {
+    const expectedHash = rows[0]?.value ?? await bcrypt.hash("parada", 12);
+    if (await bcrypt.compare(data.pin, expectedHash)) {
       return { ok: true as const };
     }
     return { ok: false as const, error: "کد ورود نادرست است." };
@@ -241,11 +249,11 @@ export const updatePin = createServerFn({ method: "POST" })
     const rows = await sql<{ value: string }>`
       select value from cafe_settings where key = 'admin_pin' limit 1
     `;
-    const expectedHash = rows[0]?.value ?? hashPin("parada");
-    if (hashPin(data.current) !== expectedHash) {
+    const expectedHash = rows[0]?.value ?? await bcrypt.hash("parada", 12);
+    if (!(await bcrypt.compare(data.current, expectedHash))) {
       return { ok: false as const, error: "کد فعلی نادرست است." };
     }
-    const nextHash = hashPin(data.next);
+    const nextHash = await bcrypt.hash(data.next, 12);
     await sql`
       insert into cafe_settings (key, value) values ('admin_pin', ${nextHash})
       on conflict (key) do update set value = excluded.value

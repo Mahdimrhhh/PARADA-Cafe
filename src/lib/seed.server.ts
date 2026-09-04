@@ -1,8 +1,8 @@
 import type { Sql } from "@/lib/db";
-import { createHash } from "node:crypto";
+import bcrypt from "bcrypt";
 
-function hashPin(pin: string): string {
-  return createHash("sha256").update(pin).digest("hex");
+async function hashPin(pin: string): Promise<string> {
+  return bcrypt.hash(pin, 12);
 }
 
 type SeedCategory = {
@@ -103,9 +103,10 @@ const ITEMS: SeedItem[] = [
 ];
 
 export async function seedMenu(sql: Sql): Promise<void> {
+  const pinHash = await hashPin("parada");
   await sql`
     insert into cafe_settings (key, value) values
-      ('admin_pin', ${hashPin("parada")}),
+      ('admin_pin', ${pinHash}),
       ('cafe_name', 'PARADA'),
       ('tagline_fa', 'توقفگاه'),
       ('tagline_en', 'a place to pause')
