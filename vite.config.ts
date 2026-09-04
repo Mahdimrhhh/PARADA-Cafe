@@ -1,5 +1,5 @@
-import { readdirSync } from "node:fs";
-import { join } from "node:path";
+import { readdirSync, existsSync, readFileSync } from "node:fs";
+import { join, extname } from "node:path";
 import type { Plugin } from "vite";
 import { defineConfig } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -66,9 +66,6 @@ function authPopupPlugin(): Plugin {
     name: "app-builder:auth-popup",
     apply: "serve",
     configureServer(server) {
-      // Register immediately (not in a returned post-hook) so we run BEFORE
-      // TanStack Start / the SPA HTML fallback. A model-authored
-      // `src/routes/auth/popup.tsx` React page must never win this path.
       server.middlewares.use(async (req, res, next) => {
         try {
           const rawUrl = req.url ?? "";
@@ -100,8 +97,6 @@ function authPopupPlugin(): Plugin {
               requestHeaders.set(key, value);
             }
           }
-          // Ensure Host is the public preview host so Better Auth's dynamic
-          // baseURL / redirect_uri match the popup origin.
           if (!requestHeaders.has("host")) requestHeaders.set("host", host);
 
           const request = new Request(`${proto}://${host}${rawUrl}`, {
@@ -115,7 +110,6 @@ function authPopupPlugin(): Plugin {
           const response = await mod.handleAuthPopupRequest(request);
 
           res.statusCode = response.status;
-          // Preserve multiple Set-Cookie headers (OAuth state + session).
           const setCookies =
             typeof response.headers.getSetCookie === "function"
               ? response.headers.getSetCookie()
@@ -142,6 +136,36 @@ function authPopupPlugin(): Plugin {
   };
 }
 
+function uploadsDevPlugin(): Plugin {
+  const mimeTypes: Record<string, string> = {
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    webp: "image/webp",
+  };
+  return {
+    name: "app-builder:uploads-dev",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
+        if (!url.pathname.startsWith("/uploads/")) return next();
+        const rel = url.pathname.slice("/uploads/".length);
+        const filePath = join(server.config.root, "uploads", rel);
+        if (!existsSync(filePath)) {
+          res.statusCode = 404;
+          res.end("Not found");
+          return;
+        }
+        const content = readFileSync(filePath);
+        const ext = extname(filePath).slice(1).toLowerCase();
+        res.setHeader("content-type", mimeTypes[ext] || "application/octet-stream");
+        res.end(content);
+      });
+    },
+  };
+}
+
 // `0.0.0.0:8080` is the live-preview contract — don't change host/port.
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
@@ -161,6 +185,7 @@ export default defineConfig(({ command, isPreview }) => ({
     pgliteBootstrapPlugin(),
     // Before tanstackStart so /auth/popup never falls through to the SPA.
     authPopupPlugin(),
+    uploadsDevPlugin(),
     // Dev-only /__app-env, read by scripts/check-auth-invariant.mjs.
     appEnvPlugin(),
     // PWA head + ?install=1 tutorial page; runs before Start/Nitro.
@@ -170,11 +195,15 @@ export default defineConfig(({ command, isPreview }) => ({
     ...(command === "build" || isPreview
       ? [
           nitro({
-            preset: "vercel",
-            // Auto-registers server/middleware/* (the PWA install page +
-            // manifest + head-tag middleware). Nitro v3 defaults serverDir to
-            // false, so removing this silently unwires /?install=1 on deploys.
+            preset: "node-server",
             serverDir: "./server",
+            devProxy: false,
+            prerender: {
+              routes: ["/"],
+            },
+            publicAssets: [
+              { dir: "./uploads", baseUrl: "/uploads" },
+            ],
           }),
         ]
       : []),

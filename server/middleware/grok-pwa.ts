@@ -14,7 +14,9 @@
  *   This must be a middleware transforming `next()`: h3 discards the `response`
  *   runtime hook's return value, and `render:html` does not exist in Nitro v3.
  */
-import installPageTemplate from "../../scripts/install-page.html?raw";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { grokOgIdentity } from "virtual:grok-og-identity";
 import {
   acceptsHtml,
@@ -24,6 +26,9 @@ import {
   renderInstallPageHtml,
   renderWebManifest,
 } from "../../scripts/grok-pwa-shared.mjs";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const installPageTemplate = readFileSync(join(__dirname, "../../scripts/install-page.html"), "utf-8");
 
 interface GrokPwaEvent {
   url: URL;

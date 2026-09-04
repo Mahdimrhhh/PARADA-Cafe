@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { CategoryIcon, ICON_KEYS } from "@/components/category-icons";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
-import { fileToImageUrl } from "@/lib/compress-image";
 import { formatToman } from "@/lib/format";
 import {
   createCategory,
@@ -18,6 +17,7 @@ import {
   updateSettings,
   verifyPin,
 } from "@/lib/menu";
+import { uploadImage } from "@/lib/upload";
 import type { MenuCategory, MenuItem, MenuPayload } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -328,10 +328,16 @@ function ItemEditor({
   async function onFile(file: File | undefined) {
     if (!file) return;
     try {
-      const url = await fileToImageUrl(file);
-      setForm((current) => ({ ...current, imageUrl: url }));
-    } catch {
-      toast.error("آپلود تصویر انجام نشد.");
+      const reader = new FileReader();
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error("خواندن فایل ناموفق بود."));
+        reader.readAsDataURL(file);
+      });
+      const result = await uploadImage({ data: { dataUrl } });
+      setForm((current) => ({ ...current, imageUrl: result.path }));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "آپلود تصویر انجام نشد.");
     }
   }
 
