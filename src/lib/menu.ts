@@ -37,9 +37,9 @@ function mapItem(row: ItemRow): MenuItem {
     descriptionFa: row.description_fa,
     priceToman: row.price_toman,
     imageUrl: row.image_url,
-    isAvailable: row.is_available,
-    isFeatured: row.is_featured,
-    isNew: row.is_new,
+    isAvailable: Boolean(row.is_available),
+    isFeatured: Boolean(row.is_featured),
+    isNew: Boolean(row.is_new),
     sortOrder: row.sort_order,
   };
 }
@@ -58,7 +58,7 @@ function mapCategory(row: CategoryRow, items: MenuItem[]): MenuCategory {
 
 async function seedIfEmpty() {
   const sql = await getSql();
-  const counts = await sql<{ c: number }>`select count(*)::int as c from categories`;
+  const counts = await sql<{ c: number }>`select count(*) as c from categories`;
   if ((counts[0]?.c ?? 0) > 0) {
     await ensurePinHashed(sql);
     return;
@@ -380,7 +380,7 @@ export const deleteCategory = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const sql = await getSql();
     const counts = await sql<{ c: number }>`
-      select count(*)::int as c from items where category_id = ${data.id}
+      select count(*) as c from items where category_id = ${data.id}
     `;
     if ((counts[0]?.c ?? 0) > 0) {
       return { ok: false as const, error: "ابتدا آیتم‌های این دسته را حذف یا جابه‌جا کنید." };

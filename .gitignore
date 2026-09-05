@@ -51,9 +51,9 @@ temp/
 *.tmp
 *.temp
 
-# Local database (PGLite data)
-*.data
-pglite/
+# Local database (SQLite)
+*.sqlite
+*.sqlite3
 
 # Platform-specific
 .grok/
