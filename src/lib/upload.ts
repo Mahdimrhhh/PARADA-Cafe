@@ -6,7 +6,7 @@ import { join } from "node:path";
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
-const UPLOAD_DIR = join(process.cwd(), "uploads");
+const UPLOAD_DIR = join(process.cwd(), "public", "uploads");
 
 function sanitizeFilename(name: string): string {
   const ext = name.split(".").pop()?.toLowerCase() ?? "";

@@ -1,16 +1,6 @@
 import { pendingMigrations } from "../../scripts/migration-plan.mjs";
 import { join } from "node:path";
 
-/** Which database backend is active. */
-export type DbSource = "neon" | "sqlite";
-
-const rawDatabaseUrl =
-  typeof process !== "undefined" ? process.env.DATABASE_URL : undefined;
-const databaseUrl =
-  rawDatabaseUrl && rawDatabaseUrl.trim() ? rawDatabaseUrl : undefined;
-
-export const dbSource: DbSource = databaseUrl ? "neon" : "sqlite";
-
 export interface Sql {
   <T = Record<string, unknown>>(
     strings: TemplateStringsArray,
@@ -23,14 +13,8 @@ export interface Sql {
 }
 
 const globalRef = globalThis as typeof globalThis & {
-  __pgSqlPromise__?: Promise<Sql>;
   __sqliteInstance__?: Promise<Sql>;
 };
-
-const OID_INT8 = 20;
-const OID_DATE = 1082;
-const OID_INTERVAL = 1186;
-const identity = (v: string) => v;
 
 type Run = <T>(text: string, params: unknown[]) => Promise<T[]>;
 
@@ -46,24 +30,6 @@ function toSql(run: Run): Sql {
   sql.query = <T = Record<string, unknown>>(text: string, params: unknown[] = []) =>
     run<T>(text, params);
   return sql;
-}
-
-function createNeonSql(): Promise<Sql> {
-  globalRef.__pgSqlPromise__ ??= (async () => {
-    const { Pool, types } = await import("pg");
-    types.setTypeParser(OID_INT8, Number);
-    types.setTypeParser(OID_DATE, identity);
-    types.setTypeParser(OID_INTERVAL, identity);
-    const pool = new Pool({ connectionString: databaseUrl });
-    return toSql(async <T>(text: string, params: unknown[]) => {
-      const res = await pool.query(text, params);
-      return res.rows as T[];
-    });
-  })().catch((err) => {
-    globalRef.__pgSqlPromise__ = undefined;
-    throw err;
-  });
-  return globalRef.__pgSqlPromise__;
 }
 
 async function createSqliteSql(): Promise<Sql> {
@@ -124,7 +90,7 @@ async function createSql(): Promise<Sql> {
         "or a server route loader, never from client code.",
     );
   }
-  return dbSource === "neon" ? createNeonSql() : createSqliteSql();
+  return createSqliteSql();
 }
 
 export function getSql(): Promise<Sql> {
@@ -136,7 +102,7 @@ export function getSql(): Promise<Sql> {
 }
 
 export async function getPglite(): Promise<never> {
-  throw new Error("PGLite is not available when using SQLite fallback");
+  throw new Error("PGLite is not available");
 }
 
 export function ensureDbReady(): Promise<void> {

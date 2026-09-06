@@ -18,6 +18,7 @@ build/
 
 # Uploads
 uploads/
+public/uploads/*
 !public/uploads/.gitkeep
 
 # OS files

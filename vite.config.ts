@@ -1,4 +1,4 @@
-import { readdirSync, existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, extname } from "node:path";
 import type { Plugin } from "vite";
 import { defineConfig } from "vite";
@@ -10,46 +10,6 @@ import { nitro } from "nitro/vite";
 import { grokPwaPlugin } from "./scripts/grok-pwa-plugin.mjs";
 // @ts-expect-error JS plugin alongside the TS vite config
 import { appEnvPlugin } from "./scripts/app-env-plugin.mjs";
-import { isMigrationFile } from "./scripts/migration-plan.mjs";
-
-/** The files `src/lib/db.ts` globs — same directory, same non-recursive scope. */
-function hasGlobbedMigrations(root: string): boolean {
-  try {
-    return readdirSync(join(root, "migrations")).some(isMigrationFile);
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Finish PGLite bootstrap during dev-server setup (before traffic). Vite awaits
- * async `configureServer` hooks. Production: `src/lib/db` kicks `ensureDbReady`
- * on import.
- *
- * Vite awaiting the hook puts this on time-to-first-render, so an app with no
- * migrations — no schema to apply — skips it entirely rather than paying for a
- * PGLite instance it never queries.
- */
-function pgliteBootstrapPlugin(): Plugin {
-  return {
-    name: "app-builder:pglite-bootstrap",
-    apply: "serve",
-    async configureServer(server) {
-      if (!hasGlobbedMigrations(server.config.root)) return;
-      try {
-        const mod = (await server.ssrLoadModule("/src/lib/db.ts")) as {
-          ensureDbReady?: () => Promise<void>;
-        };
-        if (typeof mod.ensureDbReady === "function") {
-          await mod.ensureDbReady();
-        }
-      } catch (err) {
-        console.error("[app-builder] DB bootstrap failed:", err);
-        throw err;
-      }
-    },
-  };
-}
 
 /**
  * Live-preview OAuth popup — handled HERE so the agent never has to create a
@@ -151,7 +111,7 @@ function uploadsDevPlugin(): Plugin {
         const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
         if (!url.pathname.startsWith("/uploads/")) return next();
         const rel = url.pathname.slice("/uploads/".length);
-        const filePath = join(server.config.root, "uploads", rel);
+        const filePath = join(server.config.root, "public", "uploads", rel);
         if (!existsSync(filePath)) {
           res.statusCode = 404;
           res.end("Not found");
@@ -182,7 +142,6 @@ export default defineConfig(({ command, isPreview }) => ({
   },
   resolve: { tsconfigPaths: true },
   plugins: [
-    pgliteBootstrapPlugin(),
     // Before tanstackStart so /auth/popup never falls through to the SPA.
     authPopupPlugin(),
     uploadsDevPlugin(),
@@ -201,9 +160,6 @@ export default defineConfig(({ command, isPreview }) => ({
             prerender: {
               routes: ["/"],
             },
-            publicAssets: [
-              { dir: "./uploads", baseUrl: "/uploads" },
-            ],
           }),
         ]
       : []),
