@@ -3,6 +3,7 @@ import { ClockIcon, InstagramIcon, PhoneIcon, PinIcon, TelegramIcon, WhatsappIco
 export type CafeContact = {
   address: string;
   phone: string;
+  phone2?: string;
   hours: { label: string; value: string }[];
   instagram?: string;
   telegram?: string;
@@ -10,15 +11,15 @@ export type CafeContact = {
 };
 
 const DEFAULT_CONTACT: CafeContact = {
-  address: "تهران، خیابان انقلاب، کوچهٔ گلستان، پلاک ۲۴",
-  phone: "۰۲۱-۸۸۹۰۰۱۲۳",
+  address: "گرمسار، میدان استاندارد",
+  phone: "09126314714",
+  phone2: "09014584842",
   hours: [
-    { label: "شنبه تا چهارشنبه", value: "۸ تا ۲۲" },
-    { label: "پنجشنبه و جمعه", value: "۱۰ تا ۲۴" },
+    { label: "۸:۰۰ تا ۱۳:۰۰", value: "صبح تا ظهر" },
+    { label: "۱۷:۰۰ تا ۰۰:۰۰", value: "بعدازظهر تا نیمه‌شب" },
+    { label: "۱۳:۰۰ تا ۱۷:۰۰", value: "تعطیل" },
   ],
-  instagram: "https://instagram.com/parada.cafe",
-  telegram: "https://t.me/parada_cafe",
-  whatsapp: "https://wa.me/989120000000",
+  instagram: "https://www.instagram.com/cafeparada/",
 };
 
 type Props = {
@@ -35,7 +36,7 @@ export function SiteFooter({
   return (
     <footer
       id="contact"
-      className="relative mt-20 overflow-hidden border-t border-border bg-[color:color-mix(in_oklab,var(--color-plaster)_92%,var(--color-stone))] text-ink"
+      className="relative mt-20 overflow-hidden border-t border-border bg-transparent text-ink"
     >
       <div className="lamp-glow pointer-events-none absolute inset-x-0 top-0 h-24 opacity-90" />
 
@@ -56,18 +57,23 @@ export function SiteFooter({
           <ContactColumn
             title="آدرس"
             icon={<PinIcon className="size-5" />}
-            lines={[contact.address, "مسیرهای مترو: انقلاب / دانشگاه"]}
+            lines={[contact.address]}
           />
           <ContactColumn
             title="تماس"
             icon={<PhoneIcon className="size-5" />}
-            lines={[contact.phone, "سفارش رزرو صبحانه"]}
-            hrefs={[{ label: contact.phone, href: `tel:${contact.phone.replace(/[^\d+]/g, "")}` }]}
+            lines={[]}
+            hrefs={[
+              { label: contact.phone, href: `tel:${contact.phone.replace(/[^\d+]/g, "")}` },
+              ...(contact.phone2
+                ? [{ label: contact.phone2, href: `tel:${contact.phone2.replace(/[^\d+]/g, "")}` }]
+                : []),
+            ]}
           />
           <ContactColumn
             title="ساعات کاری"
             icon={<ClockIcon className="size-5" />}
-            lines={contact.hours.flatMap((row) => [`${row.label}: ${row.value}`])}
+            lines={contact.hours.flatMap((row) => [`${row.label} — ${row.value}`])}
           />
         </div>
 

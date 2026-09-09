@@ -1,6 +1,7 @@
 import { CategoryIcon } from "@/components/category-icons";
 import type { MenuCategory } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useEffect, useRef } from "react";
 
 type Props = {
   categories: MenuCategory[];
@@ -9,6 +10,21 @@ type Props = {
 };
 
 export function CategoryNav({ categories, activeSlug, onSelect }: Props) {
+  const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  // When the active category changes (via click or scroll), make sure
+  // the corresponding button is visible inside the horizontal slider.
+  useEffect(() => {
+    if (!activeSlug) return;
+    const btn = buttonRefs.current[activeSlug];
+    if (!btn) return;
+    btn.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [activeSlug]);
+
   return (
     <nav aria-label="دسته‌بندی منو" className="sticky-lintel sticky top-0 z-30">
       <div className="mx-auto flex max-w-3xl gap-3 overflow-x-auto px-4 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -17,6 +33,9 @@ export function CategoryNav({ categories, activeSlug, onSelect }: Props) {
           return (
             <button
               key={category.id}
+              ref={(el) => {
+                buttonRefs.current[category.slug] = el;
+              }}
               type="button"
               onClick={() => onSelect(category.slug)}
               className={cn(

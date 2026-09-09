@@ -1,18 +1,19 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./fonts.css";
 
 @theme {
-  --font-display: "Cinzel", "Times New Roman", ui-serif, Georgia, serif;
-  --font-serif: "Cormorant Garamond", "Cinzel", ui-serif, Georgia, serif;
+  --font-display: "Vazirmatn", "Cinzel", "Times New Roman", ui-serif, Georgia, serif;
+  --font-serif: "Vazirmatn", "Cormorant Garamond", "Cinzel", ui-serif, Georgia, serif;
   --font-sans: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
 
-  /* Stone palette — warm plaster + cave grey + amber light */
-  --color-plaster: #ebe6dc;
-  --color-plaster-deep: #d6cebf;
-  --color-cream: #f7f3ea;
-  --color-stone: #9a938a;
-  --color-stone-deep: #5c5752;
-  --color-rock: #403c38;
+  /* Stone palette — warm travertine + cave grey + amber light */
+  --color-plaster: #e4dcd0;
+  --color-plaster-deep: #d2c7b5;
+  --color-cream: #f5f0e6;
+  --color-stone: #8a8378;
+  --color-stone-deep: #544e48;
+  --color-rock: #3a3632;
   --color-ink: #1f1d1b;
   --color-ink-soft: #383430;
   --color-mist: #6f6a64;
@@ -99,7 +100,7 @@
 @layer components {
   .plaster-page {
     min-height: 100dvh;
-    background-color: var(--color-plaster);
+    background-color: #d9d0c2;
     background-image:
       radial-gradient(
         ellipse 70% 45% at 50% 0%,
@@ -112,9 +113,12 @@
         transparent 65%
       ),
       url("/textures/stone.svg"),
-      url("/textures/noise.svg");
-    background-repeat: no-repeat, no-repeat, repeat, repeat;
-    background-size: auto, auto, 320px 320px, 220px 220px;
+      url("/textures/noise.svg"),
+      url("/background/cafe-rock-bg.webp");
+    background-repeat: no-repeat, no-repeat, repeat, repeat, no-repeat;
+    background-size: auto, auto, 320px 320px, 220px 220px, cover;
+    background-position: center, center, repeat, repeat, center;
+    background-attachment: fixed, fixed, fixed, fixed, fixed;
   }
 
   .stone-ledge {
@@ -231,10 +235,7 @@
   }
 
   .sticky-lintel {
-    background: color-mix(in oklab, var(--color-plaster) 88%, transparent);
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    border-bottom: 1px solid color-mix(in oklab, var(--color-ink) 10%, transparent);
+    background: transparent;
   }
 
   /* Stone surface for cards — soft engraved look */

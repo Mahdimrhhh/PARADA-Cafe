@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CategoryNav } from "@/components/category-nav";
 import { HamburgerNav } from "@/components/hamburger-nav";
 import { Hero } from "@/components/hero";
@@ -21,6 +21,22 @@ export function MenuPage({ payload }: { payload: MenuPayload }) {
     [categories],
   );
 
+  // When non-null, the scroll listener must not overwrite activeSlug
+  // until the programmatic scroll has completed.  Cleared by:
+  //   - the position check inside the scroll listener (primary)
+  //   - the scrollend event (secondary — handles interrupted scrolls)
+  //   - a safety timeout (fallback for browsers without scrollend)
+  const targetSlugRef = useRef<string | null>(null);
+  const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Detection window accounts for scroll-mt-28 (112px) on category sections.
+  // The MARKER (96px) is the reference point; elements whose top edge falls
+  // within TOLERANCE of it are considered active.  The lower bound
+  // (-window.innerHeight) prevents elements scrolled far above the viewport
+  // from being falsely detected as active.
+  const MARKER = 96;
+  const TOLERANCE = 60;
+
   useEffect(() => {
     const nodes = categories
       .map((category) => document.getElementById(`cat-${category.slug}`))
@@ -28,25 +44,99 @@ export function MenuPage({ payload }: { payload: MenuPayload }) {
     if (nodes.length === 0) return;
 
     const update = () => {
-      const marker = 96;
+      // While a programmatic scroll is in flight, only hand over
+      // control once the target element has actually reached its
+      // final position.  This is more reliable than a fixed timeout
+      // because it adapts to the real scroll distance.
+      if (targetSlugRef.current) {
+        const targetNode = document.getElementById(
+          `cat-${targetSlugRef.current}`,
+        );
+        if (targetNode) {
+          const rect = targetNode.getBoundingClientRect();
+          // Use a symmetric window around MARKER so the guard clears
+          // when the target settles into its scroll-mt-28 offset
+          // position, not when a neighbouring element happens to
+          // cross the threshold.
+          if (Math.abs(rect.top - MARKER) <= TOLERANCE) {
+            // Target reached — clear the guard and fall through to
+            // the normal detection so activeSlug stays in sync.
+            targetSlugRef.current = null;
+          } else {
+            // Still animating — do not overwrite the user's choice.
+            return;
+          }
+        } else {
+          targetSlugRef.current = null;
+        }
+      }
+
       let current = categories[0]?.slug ?? null;
       for (const category of categories) {
         const node = document.getElementById(`cat-${category.slug}`);
         if (!node) continue;
-        if (node.getBoundingClientRect().top - marker <= 12) {
+        const rect = node.getBoundingClientRect();
+        // Only consider elements actually near the marker — elements
+        // scrolled far above the viewport (rect.top very negative)
+        // must not match, otherwise the previous category is
+        // incorrectly detected as active after scrolling to the next.
+        if (
+          rect.top - MARKER <= TOLERANCE &&
+          rect.top > -window.innerHeight
+        ) {
           current = category.slug;
         }
       }
       setActiveSlug(current);
     };
 
+    const onScrollEnd = () => {
+      if (targetSlugRef.current) {
+        // Scrolling has stopped (either the programmatic scroll finished
+        // or the user interrupted it).  Clear the guard and run normal
+        // detection so activeSlug reflects the actual viewport.
+        targetSlugRef.current = null;
+        update();
+      }
+    };
+
     update();
     window.addEventListener("scroll", update, { passive: true });
-    return () => window.removeEventListener("scroll", update);
+    window.addEventListener("scrollend", onScrollEnd);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("scrollend", onScrollEnd);
+    };
   }, [categories]);
 
   function scrollToCategory(slug: string) {
     setActiveSlug(slug);
+    targetSlugRef.current = slug;
+
+    // Safety net for browsers without scrollend support.
+    if (safetyTimerRef.current) window.clearTimeout(safetyTimerRef.current);
+    safetyTimerRef.current = window.setTimeout(() => {
+      if (targetSlugRef.current) {
+        targetSlugRef.current = null;
+        safetyTimerRef.current = null;
+        // Run detection so activeSlug stays in sync after the guard
+        // is cleared by the timeout rather than the position check.
+        let current = categories[0]?.slug ?? null;
+        for (const category of categories) {
+          const node = document.getElementById(`cat-${category.slug}`);
+          if (!node) continue;
+          const rect = node.getBoundingClientRect();
+          if (
+            rect.top - MARKER <= TOLERANCE &&
+            rect.top > -window.innerHeight
+          ) {
+            current = category.slug;
+          }
+        }
+        setActiveSlug(current);
+      }
+    }, 1000);
+
     document.getElementById(`cat-${slug}`)?.scrollIntoView({
       behavior: "smooth",
       block: "start",
