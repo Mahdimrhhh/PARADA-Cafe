@@ -82,9 +82,7 @@ export function SiteFooter({
           <div className="stone-card rounded-[24px] p-6">
             <p className="engrave mb-3 text-[0.65rem]">از سنگ و نور</p>
             <p className="text-sm leading-7 text-ink-soft">
-              کافهٔ پارادا از دل صخره ساخته شده: دیوارهای گچی، طاق‌های سنگی،
-              و نور زرد لامپ‌های قدیمی. این منو هم مثل خود کافه، ساده، گرم و
-              صمیمی است.
+             
             </p>
             <div className="amber-rule my-5" />
             <div className="flex flex-wrap gap-2">
@@ -112,7 +110,23 @@ export function SiteFooter({
             {cafeName}
           </p>
           <p className="text-xs text-mist">
-            ساخته شده با گچ، نور زرد، و یک فنجان قهوهٔ تخصصی
+          ......
+          </p>
+        </div>
+
+        <div className="mt-6 border-t border-border pt-4 text-center">
+          <p className="text-sm font-medium text-mist/90">
+            Web Developer · Mahdi Mrh
+          </p>
+          <p className="mt-1 text-sm font-medium text-mist/90">
+            <a
+              href="https://www.instagram.com/mahdi_mrh/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-amber-deep"
+            >
+              @mahdi_mrh
+            </a>
           </p>
         </div>
       </div>

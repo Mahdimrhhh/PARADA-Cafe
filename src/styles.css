@@ -100,7 +100,7 @@
 @layer components {
   .plaster-page {
     min-height: 100dvh;
-    background-color: #d9d0c2;
+    background-color: var(--color-stone);
     background-image:
       radial-gradient(
         ellipse 70% 45% at 50% 0%,
@@ -113,12 +113,11 @@
         transparent 65%
       ),
       url("/textures/stone.svg"),
-      url("/textures/noise.svg"),
-      url("/background/cafe-rock-bg.webp");
-    background-repeat: no-repeat, no-repeat, repeat, repeat, no-repeat;
-    background-size: auto, auto, 320px 320px, 220px 220px, cover;
-    background-position: center, center, repeat, repeat, center;
-    background-attachment: fixed, fixed, fixed, fixed, fixed;
+      url("/textures/noise.svg");
+    background-repeat: no-repeat, no-repeat, repeat, repeat;
+    background-size: auto, auto, 320px 320px, 220px 220px;
+    background-position: center, center, repeat, repeat;
+    background-attachment: scroll, scroll, scroll, scroll;
   }
 
   .stone-ledge {

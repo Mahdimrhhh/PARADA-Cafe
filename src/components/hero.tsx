@@ -32,7 +32,7 @@ export function Hero({ settings }: Props) {
       </div>
 
       <div className="relative mx-auto mt-8">
-        <img src="/cafe/Coffeehero.png" alt="کنج کافه پارادا" className="mx-auto block h-auto w-80 sm:w-96" />
+        <img src="/cafe/Coffeehero.png" alt="کنج کافه پارادا" className="mx-auto block h-auto w-80 outline-none sm:w-96" />
       </div>
 
       <PebbleRow className="relative mx-auto mt-8 h-9 w-full max-w-2xl text-stone" />

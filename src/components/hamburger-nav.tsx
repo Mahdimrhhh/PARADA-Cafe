@@ -82,7 +82,7 @@ export function HamburgerNav({
 
           <aside
             className={cn(
-              "absolute right-0 top-0 flex h-dvh w-[min(22rem,92vw)] flex-col bg-ink/85 shadow-[-20px_0_50px_-12px_color-mix(in_oklab,var(--color-ink)_50%,transparent)]",
+              "absolute right-0 top-0 flex h-dvh w-[min(22rem,92vw)] flex-col bg-stone shadow-[-20px_0_50px_-12px_color-mix(in_oklab,var(--color-ink)_50%,transparent)]",
               "bg-[radial-gradient(ellipse_at_50%_0%,color-mix(in_oklab,var(--color-led)_28%,transparent),transparent_60%),url(/textures/stone.svg)] bg-[length:auto,320px_320px] bg-no-repeat bg-repeat-y",
             )}
           >
