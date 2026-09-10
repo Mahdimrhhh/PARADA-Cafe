@@ -31,29 +31,11 @@ export function Hero({ settings }: Props) {
         </p>
       </div>
 
-      <div className="relative mx-auto mt-12 grid max-w-3xl grid-cols-3 gap-3 px-1 sm:gap-5">
-        <ArchShot src="/cafe/nook.jpg" alt="کنج کافه پارادا" className="mt-6" />
-        <ArchShot src="/cafe/arch.jpg" alt="طاق سنگی پارادا" />
-        <ArchShot src="/cafe/bar.jpg" alt="بار قهوه پارادا" className="mt-6" />
+      <div className="relative mx-auto mt-8">
+        <img src="/cafe/Coffeehero.png" alt="کنج کافه پارادا" className="mx-auto block h-auto w-80 sm:w-96" />
       </div>
 
       <PebbleRow className="relative mx-auto mt-8 h-9 w-full max-w-2xl text-stone" />
     </header>
-  );
-}
-
-function ArchShot({
-  src,
-  alt,
-  className = "",
-}: {
-  src: string;
-  alt: string;
-  className?: string;
-}) {
-  return (
-    <figure className={`arch-window ${className}`}>
-      <img src={src} alt={alt} className="aspect-[3/4] w-full object-cover" />
-    </figure>
   );
 }
